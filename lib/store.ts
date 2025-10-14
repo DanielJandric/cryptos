@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 
-export type ActiveTab = "graph" | "cycles" | "comparison";
+export type ActiveTab = "graph" | "cycles" | "comparison" | "hitrate";
 export type Scenario = "soft" | "base" | "severe";
 
 interface UIState {

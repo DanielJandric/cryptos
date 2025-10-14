@@ -12,6 +12,7 @@ export default function Tabs() {
     { key: "graph", label: "Graphique" },
     { key: "cycles", label: "Cycles" },
     { key: "comparison", label: "Comparaison" },
+    { key: "hitrate", label: "Hit rate" },
   ];
 
   return (

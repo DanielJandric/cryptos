@@ -5,6 +5,7 @@ import ChartSection from "./ChartSection";
 import CycleCards from "./CycleCards";
 import ComparisonCharts from "./ComparisonCharts";
 import { useUIStore } from "@/lib/store";
+import HitRateSection from "./HitRateSection";
 
 export default function CyclesTabsContainer() {
   const activeTab = useUIStore((s) => s.activeTab);
@@ -16,6 +17,7 @@ export default function CyclesTabsContainer() {
       {activeTab === "graph" && <ChartSection />}
       {activeTab === "cycles" && <CycleCards />}
       {activeTab === "comparison" && <ComparisonCharts />}
+      {activeTab === "hitrate" && <HitRateSection />}
     </section>
   );
 }
