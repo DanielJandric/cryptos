@@ -27,6 +27,7 @@ import type { BtcHistory } from "@/types";
 import { CYCLE_3 } from "@/lib/data/cycles";
 import ChartAnnotations from "./ChartAnnotations";
 import ExportPNGButton from "./ExportPNGButton";
+import ChartTLDR from "./ChartTLDR";
 
 function formatDate(t: number) {
   const d = new Date(t);
@@ -78,6 +79,8 @@ export default function ChartSection() {
   const scenario = useUIStore((s) => s.scenario);
   const xMode = useUIStore((s) => s.xMode);
   const dayOffset = useUIStore((s) => s.dayOffset);
+  const yScale = useUIStore((s) => s.yScale);
+  const showBtc = useUIStore((s) => s.showBtc);
   const series = useMemo(() => generateAllSeries(), []);
   const dataDate = useMemo(() => mergeSeries(series, showProjection), [series, showProjection]);
   const dataDays = useMemo(() => mergeSeriesByDayIndex(series, showProjection), [series, showProjection]);
@@ -113,7 +116,8 @@ export default function ChartSection() {
 
   return (
     <section className="card p-4 md:p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+      <ChartTLDR />
+      <div className="mt-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         <h3 className="text-lg font-semibold">Graphique principal (log)</h3>
         <div className="flex items-center gap-3">
           <label className="text-sm text-slate-300/90">Projection cycle 3</label>
@@ -159,7 +163,7 @@ export default function ChartSection() {
             ) : (
               <XAxis dataKey="timestamp" tickFormatter={formatDate} interval="preserveStartEnd" stroke="#64748b" />
             )}
-            <YAxis scale="log" domain={["auto", "auto"]} tickFormatter={(v) => `$${Math.round(v)}`} stroke="#64748b" />
+            <YAxis scale={yScale} domain={["auto", "auto"]} tickFormatter={(v) => `$${Math.round(v)}`} stroke="#64748b" />
             <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#94a3b8", strokeDasharray: 4 }} />
             <Legend wrapperStyle={{ color: "#cbd5e1" }} />
 
@@ -196,7 +200,7 @@ export default function ChartSection() {
             <Area type="monotone" name="Cycle 1" dataKey="c1" stroke={SERIES_COLORS.c1} fillOpacity={1} fill="url(#gradC1)" connectNulls />
             <Area type="monotone" name="Cycle 2" dataKey="c2" stroke={SERIES_COLORS.c2} fillOpacity={1} fill="url(#gradC2)" connectNulls />
             <Area type="monotone" name="Cycle 3" dataKey="c3" stroke={SERIES_COLORS.c3} fillOpacity={1} fill="url(#gradC3)" connectNulls />
-            {btc && xMode === "date" && (
+            {showBtc && btc && xMode === "date" && (
               <Line
                 type="monotone"
                 name="BTC réel"
@@ -232,6 +236,22 @@ export default function ChartSection() {
           className="flex-1"
           aria-label="Scrubber (jours)"
         />
+        <button
+          className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800"
+          onClick={() => {
+            useUIStore.getState().setYScale(yScale === "log" ? "linear" : "log");
+          }}
+          aria-label="Basculer l'échelle Y log/lin"
+        >
+          {yScale === "log" ? "Y: log" : "Y: lin"}
+        </button>
+        <button
+          className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800"
+          onClick={() => useUIStore.getState().toggleShowBtc()}
+          aria-label="Afficher/masquer BTC réel"
+        >
+          {showBtc ? "BTC: on" : "BTC: off"}
+        </button>
       </div>
       <ChartAnnotations />
 
