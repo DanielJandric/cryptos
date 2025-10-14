@@ -39,6 +39,8 @@ export interface SummaryStats {
   daysSinceTop: number;
   daysToProjectedBottom: number;
   currentPhase: CyclePhase;
+  bearTotalDays: number;
+  bearProgressPct: number;
 }
 
 export interface DurationStats {

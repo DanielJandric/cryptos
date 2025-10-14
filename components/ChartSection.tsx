@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import { generateAllSeries, mergeSeries, getSummaryStats } from "@/lib/chartData";
+import RadialProgress from "./RadialProgress";
 import { useUIStore } from "@/lib/store";
 import { SERIES_COLORS } from "@/lib/constants";
 import type { BtcHistory } from "@/types";
@@ -158,9 +159,14 @@ export default function ChartSection() {
           <p className="text-xs text-slate-400">Jours jusqu&apos;au creux projeté</p>
           <p className="text-xl font-semibold">{stats.daysToProjectedBottom}</p>
         </div>
-        <div className="card p-3">
-          <p className="text-xs text-slate-400">Prix actuel estimé</p>
-          <p className="text-xl font-semibold">${Math.round(stats.currentPriceEstimate).toLocaleString("en-US")}</p>
+        <div className="card p-3 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-slate-400">Prix actuel estimé</p>
+            <p className="text-xl font-semibold">${Math.round(stats.currentPriceEstimate).toLocaleString("en-US")}</p>
+          </div>
+          {stats.currentPhase === "bear" && (
+            <RadialProgress value={stats.bearProgressPct} label={`Bear ${stats.daysSinceTop}/${stats.bearTotalDays}j`} />
+          )}
         </div>
       </div>
     </section>

@@ -95,6 +95,56 @@ export function mergeSeries(seriesList: CycleSeries[], showProjection: boolean):
   });
 }
 
+// Fusion par index de jour depuis le creux initial de chaque cycle
+export type DayRow = {
+  day: number; // jour depuis le creux (t=0)
+  c1: number | null;
+  c2: number | null;
+  c3: number | null;
+  projected: boolean;
+};
+
+export function mergeSeriesByDayIndex(seriesList: CycleSeries[], showProjection: boolean): DayRow[] {
+  const perCycle: Record<CycleId, Map<number, number>> = { 1: new Map(), 2: new Map(), 3: new Map() };
+  const maxByCycle: Record<CycleId, number> = { 1: 0, 2: 0, 3: 0 };
+  for (const s of seriesList) {
+    const firstTs = s.points[0]?.timestamp ?? 0;
+    for (const p of s.points) {
+      const day = Math.round((p.timestamp - firstTs) / (1000 * 60 * 60 * 24));
+      perCycle[s.id].set(day, p.price);
+      if (day > maxByCycle[s.id]) maxByCycle[s.id] = day;
+    }
+  }
+  const maxDay = Math.max(maxByCycle[1], maxByCycle[2], maxByCycle[3]);
+  const rows: DayRow[] = [];
+  for (let d = 0; d <= maxDay; d++) {
+    const c1 = perCycle[1].get(d) ?? null;
+    const c2 = perCycle[2].get(d) ?? null;
+    const c3 = perCycle[3].get(d) ?? null;
+    rows.push({ day: d, c1, c2, c3: c3, projected: false });
+  }
+  // Marquer projeté pour c3 après PROJECTION_CUTOFF
+  const cutoffTs = PROJECTION_CUTOFF.getTime();
+  const c3Series = seriesList.find((s) => s.id === 3);
+  if (c3Series) {
+    const firstTs = c3Series.points[0]?.timestamp ?? 0;
+    const cutoffDay = Math.max(0, Math.round((cutoffTs - firstTs) / (1000 * 60 * 60 * 24)));
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].day > cutoffDay) rows[i].projected = true;
+    }
+  }
+  if (!showProjection) {
+    for (const r of rows) {
+      if (r.projected) r.c3 = null;
+    }
+  }
+  return rows;
+}
+
+export function getMaxCycleDays(): number {
+  return CYCLES.reduce((m, c) => Math.max(m, c.bullDays + c.bearDays), 0);
+}
+
 export function getSummaryStats(now = new Date()): SummaryStats {
   const cycle = CYCLE_3;
   const daysSinceTop = Math.max(0, diffInDays(cycle.topDate, now));
@@ -117,7 +167,16 @@ export function getSummaryStats(now = new Date()): SummaryStats {
     currentPriceEstimate = expInterpolate(cycle.topPriceUsd, cycle.nextBottomPriceUsd, progress);
   }
 
-  return { currentPriceEstimate, daysSinceTop, daysToProjectedBottom, currentPhase };
+  const bearProgressPct = currentPhase === "bear" ? Math.round((daysSinceTop / totalBearDays) * 100) : 0;
+
+  return {
+    currentPriceEstimate,
+    daysSinceTop,
+    daysToProjectedBottom,
+    currentPhase,
+    bearTotalDays: totalBearDays,
+    bearProgressPct,
+  };
 }
 
 export function getDurationStats(): DurationStats[] {
