@@ -53,6 +53,29 @@ type ChartRecord = {
   btc?: number;
 };
 
+function CustomLegend({ payload }: { payload?: Array<{ value: string; color?: string }> }) {
+  if (!payload || !payload.length) return null;
+  const short = (v: string) => {
+    if (v === "Cycle 1") return "C1";
+    if (v === "Cycle 2") return "C2";
+    if (v === "Cycle 3") return "C3";
+    if (v.toLowerCase().includes("nasdaq")) return "NDQ";
+    if (v.toLowerCase().includes("btc")) return "BTC";
+    return v;
+  };
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-xs">
+      {payload.map((it) => (
+        <div key={it.value} className="flex items-center gap-1 px-2 py-1 rounded border border-slate-700 bg-slate-900/60">
+          <span className="inline-block size-2 rounded-full" style={{ background: it.color || "#94a3b8" }} />
+          <span className="sm:hidden">{short(it.value)}</span>
+          <span className="hidden sm:inline">{it.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: number | string }) {
   if (!active || !payload?.length || label == null) return null;
   const ts = typeof label === "number" ? label : Number(label);
@@ -194,7 +217,7 @@ export default function ChartSection() {
             )}
             <YAxis scale={yScale} domain={["auto", "auto"]} tickFormatter={(v) => `$${Math.round(v)}`} stroke="#64748b" />
             <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#94a3b8", strokeDasharray: 4 }} />
-            <Legend wrapperStyle={{ color: "#cbd5e1" }} />
+            <Legend content={<CustomLegend />} />
 
             {/* Lignes de référence (exemple: sommet cycle 3 et creux projeté) */}
             {xMode === "date" && (
