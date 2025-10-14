@@ -266,4 +266,50 @@ export function computeModelHitRate(): ModelHitRate {
   };
 }
 
+function phaseAtDay(c: CycleDefinition, daySinceBottom: number): CyclePhase | "after" {
+  if (daySinceBottom < c.bullDays) return "bull";
+  if (daySinceBottom < c.bullDays + c.bearDays) return "bear";
+  return "after";
+}
+
+export function computeDailyConsistency(now = new Date()) {
+  const cyclesRef = [CYCLES[0], CYCLES[1]];
+  const daySinceBottom = Math.max(0, diffInDays(CYCLE_3.bottomDate, now));
+  const maxDay = Math.min(daySinceBottom, CYCLE_3.bullDays + CYCLE_3.bearDays);
+  const series: { day: number; hitPct: number }[] = [];
+  let sum = 0;
+  for (let d = 0; d <= maxDay; d++) {
+    const phase3 = phaseAtDay(CYCLE_3, d);
+    const hits = cyclesRef.reduce((acc, c) => acc + (phaseAtDay(c, d) === phase3 ? 1 : 0), 0);
+    const pct = Math.round((hits / cyclesRef.length) * 100);
+    sum += pct;
+    series.push({ day: d, hitPct: pct });
+  }
+  const cumulative = series.length ? Math.round(sum / series.length) : 0;
+  return { series, cumulative, daySinceBottom: maxDay };
+}
+
+export function computeCycle3RepeatProbability(now = new Date()) {
+  const cyclesRef = [CYCLES[0], CYCLES[1]];
+  const daySinceBottom = Math.max(0, diffInDays(CYCLE_3.bottomDate, now));
+  const daySinceTop = Math.max(0, diffInDays(CYCLE_3.topDate, now));
+  const phaseToday = now.getTime() <= CYCLE_3.topDate.getTime() ? "bull" : "bear" as CyclePhase;
+  const phaseAgreementPctToday = Math.round(
+    (cyclesRef.reduce((acc, c) => acc + (phaseAtDay(c, daySinceBottom) === phaseToday ? 1 : 0), 0) / cyclesRef.length) * 100
+  );
+  // Probabilité que la baisse continue au moins jusqu'à aujourd'hui (survie) et jusqu'à 364j
+  const N = cyclesRef.length;
+  let bearSurvival = 0;
+  let bottomByTarget = 0;
+  const expectedBear = 364;
+  const tolBear = Math.round(expectedBear * 0.02);
+  for (const c of cyclesRef) {
+    if (c.bearDays >= daySinceTop) bearSurvival++;
+    if (Math.abs(c.bearDays - expectedBear) <= tolBear) bottomByTarget++;
+  }
+  const bearSurvivalProb = phaseToday === "bear" ? Math.round((bearSurvival / N) * 100) : 0;
+  const bottomByTargetProb = Math.round((bottomByTarget / N) * 100);
+  return { phaseAgreementPctToday, bearSurvivalProb, bottomByTargetProb };
+}
+
 
