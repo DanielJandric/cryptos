@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { useUIStore } from "@/lib/store";
 
 const links = [
   { href: "#top", label: "Accueil" },
@@ -18,6 +19,12 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const toggle = () => setOpen((v) => !v);
   const close = () => setOpen(false);
+  const active = useUIStore((s) => s.activeSectionId);
+  useEffect(() => {
+    // close drawer when section changes via click/scroll
+    if (open) setOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur border-b border-slate-800/60 bg-slate-950/60">
@@ -25,7 +32,7 @@ export default function Navbar() {
         <a href="#top" className="font-bold text-slate-100">Cycles 1064/364</a>
         <div className="hidden md:flex items-center gap-4">
           {links.map((l) => (
-            <a key={l.href} href={l.href} className="text-sm text-slate-300 hover:text-white transition-colors">
+            <a key={l.href} href={l.href} className={`text-sm transition-colors ${active === l.href.replace('#','') ? 'text-white' : 'text-slate-300 hover:text-white'}`}>
               {l.label}
             </a>
           ))}

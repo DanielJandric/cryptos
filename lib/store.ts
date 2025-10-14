@@ -3,16 +3,23 @@
 import { create } from "zustand";
 
 export type ActiveTab = "graph" | "cycles" | "comparison";
+export type Scenario = "soft" | "base" | "severe";
 
 interface UIState {
   activeTab: ActiveTab;
   showProjection: boolean;
   xMode: "date" | "days";
   dayOffset: number; // pour scrubber (jours depuis début)
+  scenario: Scenario;
+  showTour: boolean;
+  activeSectionId: string | null;
   setActiveTab: (tab: ActiveTab) => void;
   toggleProjection: () => void;
   setXMode: (m: "date" | "days") => void;
   setDayOffset: (n: number) => void;
+  setScenario: (s: Scenario) => void;
+  toggleTour: () => void;
+  setActiveSection: (id: string | null) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -20,10 +27,16 @@ export const useUIStore = create<UIState>((set) => ({
   showProjection: true,
   xMode: "date",
   dayOffset: 0,
+  scenario: "base",
+  showTour: false,
+  activeSectionId: null,
   setActiveTab: (activeTab) => set({ activeTab }),
   toggleProjection: () => set((s) => ({ showProjection: !s.showProjection })),
   setXMode: (xMode) => set({ xMode }),
   setDayOffset: (dayOffset) => set({ dayOffset }),
+  setScenario: (scenario) => set({ scenario }),
+  toggleTour: () => set((s) => ({ showTour: !s.showTour })),
+  setActiveSection: (activeSectionId) => set({ activeSectionId }),
 }));
 
 
