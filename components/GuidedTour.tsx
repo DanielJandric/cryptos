@@ -5,9 +5,30 @@ import { X } from "lucide-react";
 import { useUIStore } from "@/lib/store";
 
 const steps = [
-  { target: "theorie", title: "Théorie", text: "Découvrez le modèle 1064/364 et ses mécanismes clés." },
-  { target: "graphique", title: "Graphique", text: "Comparez les cycles, activez la projection et explorez en log." },
-  { target: "points", title: "Points clés", text: "Forces et limites du modèle pour une lecture équilibrée." },
+  {
+    target: "theorie",
+    title: "Théorie",
+    text:
+      "Le modèle 1064/364 alterne ~1064j de hausse et ~364j de baisse. Lisez la définition, les données historiques et les limites pour bien cadrer vos attentes.",
+  },
+  {
+    target: "graphique",
+    title: "Graphique",
+    text:
+      "Comparez les cycles, activez/masquez la projection, et utilisez l’export PNG. Le mode scénario dans la bannière ajuste le creux projeté.",
+  },
+  {
+    target: "graphique",
+    title: "Annotations",
+    text:
+      "Repères: halving (vert), ATH (bleu), creux projeté (ambre). Passez en log pour mieux lire les amplitudes fortes.",
+  },
+  {
+    target: "points",
+    title: "Points clés",
+    text:
+      "Retenez le TL;DR: outil utile mais non déterministe. Combinez avec d’autres indicateurs, gérez votre risque, et pensez long terme.",
+  },
 ];
 
 export default function GuidedTour() {
