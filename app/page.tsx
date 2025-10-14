@@ -12,12 +12,12 @@ export default function Home() {
     <div className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-6 md:space-y-8">
       <Hero />
       <StatusBanner />
-      <TheorySection />
+      <div id="theorie"><TheorySection /></div>
       <ModelExplanation />
-      <CyclesTabsContainer />
-      <Countdown />
-      <KeyTakeaways />
-      <Warning />
+      <div id="graphique"><CyclesTabsContainer /></div>
+      <div id="compte"><Countdown /></div>
+      <div id="points"><KeyTakeaways /></div>
+      <div id="avertissement"><Warning /></div>
     </div>
   );
 }
