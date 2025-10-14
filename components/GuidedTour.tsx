@@ -33,8 +33,16 @@ export default function GuidedTour() {
   const step = steps[idx];
   const el = typeof document !== "undefined" ? document.getElementById(step.target) : null;
   const rect = el?.getBoundingClientRect();
-  const top = (rect?.top ?? 120) + (typeof window !== "undefined" ? window.scrollY : 0) + 16;
-  const left = (rect?.left ?? 16) + 16;
+  const vw = typeof window !== "undefined" ? window.innerWidth : 390;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 844;
+  const bubbleW = 280; // approx max width
+  const bubbleH = 140; // approx height
+  // Use viewport coordinates (rect.top/left) to position within fixed overlay
+  let top = (rect?.top ?? 120) + 16;
+  let left = (rect?.left ?? 16) + 16;
+  // Clamp inside viewport to avoid off-screen on iPhone
+  if (top + bubbleH > vh - 16) top = Math.max(16, vh - bubbleH - 16);
+  if (left + bubbleW > vw - 16) left = Math.max(16, vw - bubbleW - 16);
 
   return (
     <div className="fixed inset-0 z-[60] pointer-events-none">
