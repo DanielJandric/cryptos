@@ -33,6 +33,41 @@ export default function HitRateSection() {
           <li>Probabilité de creux à ~364j (±2%): {prob.bottomByTargetProb}%</li>
         </ul>
       </div>
+      <div className="card p-4">
+        <h4 className="font-semibold mb-2">Méthodologie & Rationnels</h4>
+        <ul className="text-sm list-disc list-inside text-slate-300/90 space-y-1">
+          <li>
+            <span className="font-medium">Seuil ±2%:</span> marge opérationnelle pour les écarts de calendrier (jours ouvrés/UTC),
+            cohérente avec des variations historiques mineures autour de 1064/364.
+          </li>
+          <li>
+            <span className="font-medium">Hit bull/bear (durées):</span> on compare les durées observées des cycles
+            passés à 1064/364 et on comptabilise un hit si l&apos;écart en jours est ≤ 2%.
+          </li>
+          <li>
+            <span className="font-medium">Consistance quotidienne:</span> pour chaque jour t depuis le creux, on vérifie si le
+            cycle 3 est dans la même phase (bull/bear) que la majorité des cycles de référence; la courbe
+            reflète ce taux d&apos;accord au fil des jours.
+          </li>
+          <li>
+            <span className="font-medium">Survie bear:</span> si aujourd&apos;hui est en phase bear, on évalue la proportion de cycles
+            historiques dont la phase bear a duré au moins aussi longtemps (jours depuis le top), ce qui
+            fournit une intuition de probabilité conditionnelle.
+          </li>
+          <li>
+            <span className="font-medium">Creux cible 364j:</span> probabilité que la durée bear historique soit dans [364±2%],
+            ce qui cadre une fenêtre temporelle plausible pour le creux si le schéma se répète.
+          </li>
+          <li>
+            <span className="font-medium">Limites:</span> faible taille d&apos;échantillon (n=2 réf.), non‑indépendance potentielle des cycles,
+            absence d&apos;événements exogènes majeurs dans le modèle, corrélation ≠ causalité.
+          </li>
+          <li>
+            <span className="font-medium">Améliorations possibles:</span> bande de confiance par bootstrap sur les durées, test
+            de robustesse avec seuils ±1%/±3%, et intégration d&apos;indices macro (liquidité, halving).
+          </li>
+        </ul>
+      </div>
     </section>
   );
 }
