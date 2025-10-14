@@ -18,7 +18,7 @@ export function Hero({
       {/* Translucent bitcoin background behind the hero (provide /public/images/bitcoin-bg.png) */}
       <div aria-hidden className="pointer-events-none select-none absolute inset-0 flex items-center justify-center">
         <Image
-          src="/images/OIP.png"
+          src="/images/bitcoin-bg.png"
           alt=""
           width={900}
           height={900}
