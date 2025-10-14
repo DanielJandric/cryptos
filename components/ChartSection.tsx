@@ -282,58 +282,64 @@ export default function ChartSection() {
           NDQ période: {ndqRestrict ? `${CYCLE_3.bottomDate.toISOString().slice(0,10)} → ${CYCLE_3.nextBottomDate.toISOString().slice(0,10)}` : 'complet'}
         </div>
       )}
-      {/* Mobile action bar under chart */}
-      <div className="md:hidden mt-2 flex items-center gap-2">
-        <label className="text-xs text-slate-400">Axe</label>
-        <select
-          className="bg-slate-900/60 border border-slate-700 rounded px-2 py-1 text-sm"
-          value={xMode}
-          onChange={(e) => useUIStore.getState().setXMode(e.target.value as "date" | "days")}
-          aria-label="Mode de l'axe X (mobile)"
-        >
-          <option value="date">Date</option>
-          <option value="days">Jours</option>
-        </select>
-        <label className="text-xs text-slate-400">Scrub</label>
-        <input
-          type="range"
-          min={0}
-          max={getMaxCycleDays()}
-          value={dayOffset}
-          onChange={(e) => useUIStore.getState().setDayOffset(parseInt(e.target.value, 10))}
-          className="flex-1"
-          aria-label="Scrubber (jours)"
-        />
-        <button
-          className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800"
-          onClick={() => setBrushKey((k) => k + 1)}
-          aria-label="Réinitialiser le zoom (mobile)"
-        >
-          Reset
-        </button>
-        <button
-          className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800"
-          onClick={() => {
-            useUIStore.getState().setYScale(yScale === "log" ? "linear" : "log");
-          }}
-          aria-label="Basculer l'échelle Y log/lin"
-        >
-          {yScale === "log" ? "Y: log" : "Y: lin"}
-        </button>
-        <button
-          className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800"
-          onClick={() => useUIStore.getState().toggleShowBtc()}
-          aria-label="Afficher/masquer BTC réel"
-        >
-          {showBtc ? "BTC: on" : "BTC: off"}
-        </button>
-        <button
-          className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800"
-          onClick={() => useUIStore.getState().toggleShowNdq()}
-          aria-label="Afficher/masquer NASDAQ"
-        >
-          {showNdq ? "NDQ: on" : "NDQ: off"}
-        </button>
+      {/* Mobile action bar under chart (wrap on multiple lines for iPhone) */}
+      <div className="md:hidden mt-2 flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-slate-400">Axe</label>
+          <select
+            className="bg-slate-900/60 border border-slate-700 rounded px-2 py-1 text-xs"
+            value={xMode}
+            onChange={(e) => useUIStore.getState().setXMode(e.target.value as "date" | "days")}
+            aria-label="Mode de l'axe X (mobile)"
+          >
+            <option value="date">Date</option>
+            <option value="days">Jours</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2 basis-full">
+          <label className="text-xs text-slate-400">Scrub</label>
+          <input
+            type="range"
+            min={0}
+            max={getMaxCycleDays()}
+            value={dayOffset}
+            onChange={(e) => useUIStore.getState().setDayOffset(parseInt(e.target.value, 10))}
+            className="w-full"
+            aria-label="Scrubber (jours)"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800 text-xs"
+            onClick={() => setBrushKey((k) => k + 1)}
+            aria-label="Réinitialiser le zoom (mobile)"
+          >
+            Reset
+          </button>
+          <button
+            className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800 text-xs"
+            onClick={() => {
+              useUIStore.getState().setYScale(yScale === "log" ? "linear" : "log");
+            }}
+            aria-label="Basculer l'échelle Y log/lin"
+          >
+            {yScale === "log" ? "Y: log" : "Y: lin"}
+          </button>
+          <button
+            className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800 text-xs"
+            onClick={() => useUIStore.getState().toggleShowBtc()}
+            aria-label="Afficher/masquer BTC réel"
+          >
+            {showBtc ? "BTC: on" : "BTC: off"}
+          </button>
+          <button
+            className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800 text-xs"
+            onClick={() => useUIStore.getState().toggleShowNdq()}
+            aria-label="Afficher/masquer NASDAQ"
+          >
+            {showNdq ? "NDQ: on" : "NDQ: off"}
+          </button>
+        </div>
       </div>
       <ChartAnnotations />
 
