@@ -12,10 +12,10 @@ import {
   Line,
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
-import { generateAllSeries, mergeSeries, getSummaryStats } from "@/lib/chartData";
+import { generateAllSeries, mergeSeries, getSummaryStatsWithBottom } from "@/lib/chartData";
 import RadialProgress from "./RadialProgress";
 import { useUIStore } from "@/lib/store";
-import { SERIES_COLORS } from "@/lib/constants";
+import { SERIES_COLORS, SCENARIO_BOTTOMS } from "@/lib/constants";
 import type { BtcHistory } from "@/types";
 import { CYCLE_3 } from "@/lib/data/cycles";
 
@@ -56,6 +56,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 
 export default function ChartSection() {
   const showProjection = useUIStore((s) => s.showProjection);
+  const scenario = useUIStore((s) => s.scenario);
   const series = useMemo(() => generateAllSeries(), []);
   const data = useMemo(() => mergeSeries(series, showProjection), [series, showProjection]);
   const [btc, setBtc] = useState<BtcHistory | null>(null);
@@ -83,7 +84,7 @@ export default function ChartSection() {
     }
     return Array.from(map.values()).sort((a, b) => a.timestamp - b.timestamp);
   }, [data, btc]);
-  const stats = getSummaryStats();
+  const stats = getSummaryStatsWithBottom(SCENARIO_BOTTOMS[scenario]);
 
   return (
     <section className="card p-4 md:p-6">

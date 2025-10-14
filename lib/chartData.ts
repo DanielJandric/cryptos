@@ -179,6 +179,36 @@ export function getSummaryStats(now = new Date()): SummaryStats {
   };
 }
 
+// Variante acceptant un creux projeté différent (scénarios)
+export function getSummaryStatsWithBottom(overrideBottomUsd: number, now = new Date()): SummaryStats {
+  const cycle = { ...CYCLE_3, nextBottomPriceUsd: overrideBottomUsd } as CycleDefinition;
+  const daysSinceTop = Math.max(0, diffInDays(cycle.topDate, now));
+  const daysToProjectedBottom = Math.max(0, diffInDays(now, cycle.nextBottomDate));
+  const totalBearDays = Math.max(1, diffInDays(cycle.topDate, cycle.nextBottomDate));
+  let currentPriceEstimate = cycle.topPriceUsd;
+  let currentPhase: CyclePhase = "bull";
+  if (now.getTime() <= cycle.topDate.getTime()) {
+    currentPhase = "bull";
+    const elapsed = Math.max(0, diffInDays(cycle.bottomDate, now));
+    const progress = Math.min(1, elapsed / Math.max(1, cycle.bullDays));
+    currentPriceEstimate = expInterpolate(cycle.bottomPriceUsd, cycle.topPriceUsd, progress);
+  } else {
+    currentPhase = "bear";
+    const elapsed = Math.max(0, diffInDays(cycle.topDate, now));
+    const progress = Math.min(1, elapsed / totalBearDays);
+    currentPriceEstimate = expInterpolate(cycle.topPriceUsd, cycle.nextBottomPriceUsd, progress);
+  }
+  const bearProgressPct = currentPhase === "bear" ? Math.round((daysSinceTop / totalBearDays) * 100) : 0;
+  return {
+    currentPriceEstimate,
+    daysSinceTop,
+    daysToProjectedBottom,
+    currentPhase,
+    bearTotalDays: totalBearDays,
+    bearProgressPct,
+  };
+}
+
 export function getDurationStats(): DurationStats[] {
   return CYCLES.map((c) => ({ cycleId: c.id, bullDays: c.bullDays, bearDays: c.bearDays }));
 }
