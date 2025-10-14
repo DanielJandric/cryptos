@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export function Hero({
   badge = "Modèle prédictif Bitcoin",
@@ -13,7 +14,22 @@ export function Hero({
   subtitle?: string;
 }) {
   return (
-    <section className="w-full text-center py-12 md:py-16">
+    <section className="relative w-full text-center py-12 md:py-16 overflow-hidden">
+      {/* Translucent bitcoin background behind the hero (provide /public/images/bitcoin-bg.png) */}
+      <div aria-hidden className="pointer-events-none select-none absolute inset-0 flex items-center justify-center">
+        <Image
+          src="/images/bitcoin-bg.png"
+          alt=""
+          width={900}
+          height={900}
+          className="opacity-10 md:opacity-15 blur-[1px] mix-blend-screen"
+          style={{
+            maskImage: "radial-gradient(closest-side, rgba(0,0,0,1), rgba(0,0,0,0.0))",
+            WebkitMaskImage: "radial-gradient(closest-side, rgba(0,0,0,1), rgba(0,0,0,0.0))",
+          }}
+          priority
+        />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}

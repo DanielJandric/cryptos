@@ -1,5 +1,5 @@
 import HitRateCard from "./HitRateCard";
-import { computeModelHitRate, computeDailyConsistency, computeCycle3RepeatProbability, computeCycleRepeatHitRate } from "@/lib/chartData";
+import { computeModelHitRate, computeDailyConsistency, computeCycle3RepeatProbability, computeCycleRepeatHitRate, robustnessAcrossThresholds, halvingContext } from "@/lib/chartData";
 import { useMemo } from "react";
 import ConsistencySparkline from "./ConsistencySparkline";
 
@@ -8,6 +8,8 @@ export default function HitRateSection() {
   const daily = useMemo(() => computeDailyConsistency(), []);
   const prob = useMemo(() => computeCycle3RepeatProbability(), []);
   const repeat = useMemo(() => computeCycleRepeatHitRate(), []);
+  const robust = useMemo(() => robustnessAcrossThresholds(), []);
+  const halv = useMemo(() => halvingContext(), []);
   return (
     <section className="flex flex-col gap-3">
       <HitRateCard />
@@ -79,6 +81,19 @@ export default function HitRateSection() {
             de robustesse avec seuils ±1%/±3%, et intégration d&apos;indices macro (liquidité, halving).
           </li>
         </ul>
+      </div>
+      <div className="card p-4">
+        <h4 className="font-semibold mb-2">Robustesse (±1% / ±2% / ±3%)</h4>
+        <ul className="text-sm list-disc list-inside text-slate-300/90 space-y-1">
+          {robust.map((r) => (
+            <li key={r.tolPct}>±{Math.round(r.tolPct * 100)}% → prob. conjointe (moyenne bootstrap): {Math.round(r.bootstrap.mean * 100)}% [CI95%: {Math.round(r.bootstrap.ci95[0] * 100)}%–{Math.round(r.bootstrap.ci95[1] * 100)}%]</li>
+          ))}
+        </ul>
+      </div>
+      <div className="card p-4">
+        <h4 className="font-semibold mb-2">Contexte halving</h4>
+        <p className="text-sm text-slate-300/90">Dernier: {halv.lastHalving.toISOString().slice(0,10)} • Prochain (approx): {halv.nextHalvingApprox.toISOString().slice(0,10)}</p>
+        <p className="text-xs text-slate-400">Jours depuis: {halv.daysSince} • Jours jusqu&apos;au prochain (approx): {halv.daysToNextApprox}</p>
       </div>
     </section>
   );

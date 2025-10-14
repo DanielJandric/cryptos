@@ -350,4 +350,64 @@ export function computeCycleRepeatHitRate(tolPct = 0.02) {
   };
 }
 
+// Bootstrap simple (avec remplacement) sur les 2 cycles de référence
+export function bootstrapRepeatHitRate(tolPct = 0.02, iterations = 10_000) {
+  const expectedBull = 1064;
+  const expectedBear = 364;
+  const tolBull = Math.round(expectedBull * tolPct);
+  const tolBear = Math.round(expectedBear * tolPct);
+  const bullRef = [CYCLES[0].bullDays, CYCLES[1].bullDays];
+  const bearRef = [CYCLES[0].bearDays, CYCLES[1].bearDays];
+  const n = bullRef.length;
+  let sum = 0;
+  const samples: number[] = [];
+  for (let i = 0; i < iterations; i++) {
+    // échantillon bootstrap de n éléments avec remplacement
+    let bullHits = 0;
+    let bearHits = 0;
+    for (let k = 0; k < n; k++) {
+      const b = bullRef[Math.floor(Math.random() * n)];
+      const d = bearRef[Math.floor(Math.random() * n)];
+      if (Math.abs(b - expectedBull) <= tolBull) bullHits++;
+      if (Math.abs(d - expectedBear) <= tolBear) bearHits++;
+    }
+    const bullProb = (bullHits + 1) / (n + 2); // lissage
+    const bearProb = (bearHits + 1) / (n + 2);
+    // Bull C3 est déjà fixé (1 si dans tolérance, sinon 0)
+    const bullFixed = Math.abs(CYCLE_3.bullDays - expectedBull) <= tolBull ? 1 : 0;
+    const joint = bullFixed * bearProb;
+    samples.push(joint);
+    sum += joint;
+  }
+  samples.sort((a, b) => a - b);
+  const mean = sum / iterations;
+  const ciLow = samples[Math.floor(iterations * 0.025)];
+  const ciHigh = samples[Math.floor(iterations * 0.975)];
+  return {
+    tolPct,
+    mean: Math.round(mean * 100) / 100,
+    ci95: [Math.round(ciLow * 100) / 100, Math.round(ciHigh * 100) / 100] as [number, number],
+  };
+}
+
+export function robustnessAcrossThresholds() {
+  const th = [0.01, 0.02, 0.03];
+  return th.map((t) => ({
+    tolPct: t,
+    repeat: computeCycleRepeatHitRate(t),
+    bootstrap: bootstrapRepeatHitRate(t, 5000),
+  }));
+}
+
+export function halvingContext(now = new Date()) {
+  // dernier halving connu et prochain approximé (+4 ans)
+  const sorted = [makeUtcDate(2016, 7, 9), makeUtcDate(2020, 5, 11), makeUtcDate(2024, 4, 20)].sort((a, b) => a.getTime() - b.getTime());
+  let last = sorted[0];
+  for (const d of sorted) if (d.getTime() <= now.getTime()) last = d;
+  const next = makeUtcDate(last.getUTCFullYear() + 4, last.getUTCMonth() + 1, last.getUTCDate());
+  const since = diffInDays(last, now);
+  const toNext = Math.max(0, diffInDays(now, next));
+  return { lastHalving: last, nextHalvingApprox: next, daysSince: since, daysToNextApprox: toNext };
+}
+
 
