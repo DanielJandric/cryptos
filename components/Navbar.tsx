@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Languages } from "lucide-react";
 import { useUIStore } from "@/lib/store";
 import GlossaryModal from "./GlossaryModal";
 
@@ -34,6 +34,13 @@ export default function Navbar() {
         >
           <HelpCircle className="size-4" />
           <span className="hidden md:inline">Démarrer le tour</span>
+        </button>
+        <button
+          onClick={() => useUIStore.getState().toggleLanguage && useUIStore.getState().toggleLanguage!()}
+          className="inline-flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-md border border-slate-700 text-slate-200 hover:bg-slate-800 mr-1"
+          aria-label="Toggle language"
+        >
+          <Languages className="size-4" /> EN/FR
         </button>
         <button
           onClick={() => useUIStore.getState().toggleNdqRestrict()}

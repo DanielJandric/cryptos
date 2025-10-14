@@ -6,6 +6,7 @@ export type ActiveTab = "graph" | "cycles" | "comparison" | "hitrate";
 export type Scenario = "soft" | "base" | "severe";
 
 interface UIState {
+  language?: "fr" | "en";
   activeTab: ActiveTab;
   showProjection: boolean;
   xMode: "date" | "days";
@@ -29,9 +30,11 @@ interface UIState {
   toggleShowBtc: () => void;
   toggleShowNdq: () => void;
   toggleNdqRestrict: () => void;
+  toggleLanguage?: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
+  language: "fr",
   activeTab: "graph",
   showProjection: true,
   xMode: "date",
@@ -55,6 +58,7 @@ export const useUIStore = create<UIState>((set) => ({
   toggleShowBtc: () => set((s) => ({ showBtc: !s.showBtc })),
   toggleShowNdq: () => set((s) => ({ showNdq: !s.showNdq })),
   toggleNdqRestrict: () => set((s) => ({ ndqRestrictToCycle3: !s.ndqRestrictToCycle3 })),
+  toggleLanguage: () => set((s) => ({ language: s.language === "fr" ? "en" : "fr" })),
 }));
 
 

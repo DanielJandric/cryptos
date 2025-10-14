@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import BackToTop from "@/components/BackToTop";
 import GuidedTour from "@/components/GuidedTour";
+import LanguageInit from "@/components/LanguageInit";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -74,6 +75,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-slate-300`}
       >
         <a id="top" />
+        <LanguageInit />
         <Navbar />
         {children}
         <BottomNav />

@@ -3,16 +3,18 @@
 import { useUIStore, type ActiveTab } from "@/lib/store";
 import { motion } from "framer-motion";
 import { cn } from "./utils";
+import { useI18n } from "@/hooks/useI18n";
 
 export default function Tabs() {
   const activeTab = useUIStore((s) => s.activeTab);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
+  const { msg } = useI18n();
 
   const tabs: { key: ActiveTab; label: string }[] = [
-    { key: "graph", label: "Graphique" },
-    { key: "cycles", label: "Cycles" },
-    { key: "comparison", label: "Comparaison" },
-    { key: "hitrate", label: "Hit rate" },
+    { key: "graph", label: msg("Graphique", "Chart") },
+    { key: "cycles", label: msg("Cycles", "Cycles") },
+    { key: "comparison", label: msg("Comparaison", "Comparison") },
+    { key: "hitrate", label: msg("Hit rate", "Hit rate") },
   ];
 
   return (

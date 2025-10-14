@@ -1,3 +1,4 @@
+"use client";
 import CyclesTabsContainer from "@/components/CyclesTabsContainer";
 import Hero from "@/components/Hero";
 import StatusBanner from "@/components/StatusBanner";
@@ -10,11 +11,23 @@ import ScrollSpyController from "@/components/ScrollSpyController";
 import HitRateCard from "@/components/HitRateCard";
 import CorrelationCard from "@/components/CorrelationCard";
 
+import { useUIStore } from "@/lib/store";
+
 export default function Home() {
+  const lang = useUIStore((s) => s.language ?? "fr");
+  const t = lang === "en";
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-10 space-y-5 md:space-y-7">
       <ScrollSpyController ids={["theorie", "graphique", "compte", "points", "avertissement"]} offset={120} />
-      <Hero />
+      <Hero
+        badge={t ? "Predictive model" : "Modèle prédictif Bitcoin"}
+        title={t ? "Predictive 1064/364 Bitcoin model" : "Modèle prédictif 1064/364 Bitcoin"}
+        subtitle={
+          t
+            ? "Historic cycles analysis, current cycle projections, and macro insights (psychology, liquidity, halving)."
+            : "Analyse des cycles historiques, projections du cycle en cours et insights macro basés sur la psychologie de marché, la liquidité et le halving."
+        }
+      />
       <StatusBanner />
       <div id="theorie"><TheorySection /></div>
       <ModelExplanation />
