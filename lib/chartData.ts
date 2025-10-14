@@ -312,4 +312,42 @@ export function computeCycle3RepeatProbability(now = new Date()) {
   return { phaseAgreementPctToday, bearSurvivalProb, bottomByTargetProb };
 }
 
+export function computeCycleRepeatHitRate(tolPct = 0.02) {
+  const expectedBull = 1064;
+  const expectedBear = 364;
+  const tolBull = Math.round(expectedBull * tolPct);
+  const tolBear = Math.round(expectedBear * tolPct);
+  const refs = [CYCLES[0], CYCLES[1]];
+  const n = refs.length;
+  const bullHitsRef = refs.reduce(
+    (acc, c) => acc + (Math.abs(c.bullDays - expectedBull) <= tolBull ? 1 : 0),
+    0
+  );
+  const bearHitsRef = refs.reduce(
+    (acc, c) => acc + (Math.abs(c.bearDays - expectedBear) <= tolBear ? 1 : 0),
+    0
+  );
+  // Beta(1,1) laplace smoothing (add-one)
+  const bullPredictive = (bullHitsRef + 1) / (n + 2);
+  const bearPredictive = (bearHitsRef + 1) / (n + 2);
+  // Si la durée bull du cycle 3 est déjà connue, on fige sa contribution
+  const bullFixed = Math.abs(CYCLE_3.bullDays - expectedBull) <= tolBull ? 1 : 0;
+  const joint = Math.round(100 * (bullFixed * bearPredictive)) / 100;
+  return {
+    tolPct,
+    bullFixed, // 0 ou 1 selon si bull du cycle 3 est dans la tolérance
+    bearPredictive: Math.round(bearPredictive * 100) / 100,
+    jointProb: Math.round(joint * 100) / 100,
+    context: {
+      refs: n,
+      bullHitsRef,
+      bearHitsRef,
+      expectedBull,
+      expectedBear,
+      tolBull,
+      tolBear,
+    },
+  };
+}
+
 

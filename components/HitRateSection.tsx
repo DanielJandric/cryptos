@@ -1,5 +1,5 @@
 import HitRateCard from "./HitRateCard";
-import { computeModelHitRate, computeDailyConsistency, computeCycle3RepeatProbability } from "@/lib/chartData";
+import { computeModelHitRate, computeDailyConsistency, computeCycle3RepeatProbability, computeCycleRepeatHitRate } from "@/lib/chartData";
 import { useMemo } from "react";
 import ConsistencySparkline from "./ConsistencySparkline";
 
@@ -7,6 +7,7 @@ export default function HitRateSection() {
   const hr = computeModelHitRate();
   const daily = useMemo(() => computeDailyConsistency(), []);
   const prob = useMemo(() => computeCycle3RepeatProbability(), []);
+  const repeat = useMemo(() => computeCycleRepeatHitRate(), []);
   return (
     <section className="flex flex-col gap-3">
       <HitRateCard />
@@ -32,6 +33,17 @@ export default function HitRateSection() {
           <li>Probabilité que la baisse survive jusqu&apos;à aujourd&apos;hui: {prob.bearSurvivalProb}%</li>
           <li>Probabilité de creux à ~364j (±2%): {prob.bottomByTargetProb}%</li>
         </ul>
+      </div>
+      <div className="card p-4">
+        <h4 className="font-semibold mb-2">Hit rate global (égaler cycles précédents)</h4>
+        <p className="text-sm text-slate-300/90">
+          Tolérance: ±{Math.round(repeat.tolPct * 100)}%. Bull (C3) = {repeat.bullFixed ? "ok" : "hors tolérance"};
+          probabilité que la baisse respecte ~364j: {Math.round(repeat.bearPredictive * 100)}%.
+        </p>
+        <p className="text-sm text-slate-300/90 mt-1">Probabilité conjointe (bull déjà fixé × bear prédictive):
+          <span className="ml-1 font-semibold">{Math.round(repeat.jointProb * 100)}%</span>
+        </p>
+        <p className="text-xs text-slate-400 mt-1">Réf.: {repeat.context.refs} cycles, hits bull: {repeat.context.bullHitsRef}, hits bear: {repeat.context.bearHitsRef}.</p>
       </div>
       <div className="card p-4">
         <h4 className="font-semibold mb-2">Méthodologie & Rationnels</h4>
