@@ -12,6 +12,7 @@ import type {
 } from "@/types";
 import { addDays, diffInDays, expInterpolate, formatCurrencyUSD, makeUtcDate } from "./utils";
 import { CYCLES, CYCLE_3 } from "./data/cycles";
+import type { ModelHitRate } from "@/types";
 
 export const DATA_STEP_DAYS = 15; // points tous les 15 jours
 export const PROJECTION_CUTOFF = makeUtcDate(2025, 10, 14);
@@ -229,6 +230,40 @@ export function getAverages() {
 
 export function formatMoney(value: number) {
   return formatCurrencyUSD(value);
+}
+
+// Hit rate du modèle 1064/364 :
+// - Critère: une prédiction est "hit" si l'erreur absolue de durée (jours) est <= 2% de la durée attendue
+// - On évalue bull et bear séparément sur cycles historiques 1 et 2
+export function computeModelHitRate(): ModelHitRate {
+  const consider: CycleDefinition[] = [CYCLES[0], CYCLES[1]];
+  const expectedBull = 1064;
+  const expectedBear = 364;
+  const tolBull = Math.round(expectedBull * 0.02);
+  const tolBear = Math.round(expectedBear * 0.02);
+  let bullHits = 0;
+  let bearHits = 0;
+  let bullAbsErr = 0;
+  let bearAbsErr = 0;
+  for (const c of consider) {
+    const errB = Math.abs(c.bullDays - expectedBull);
+    const errD = Math.abs(c.bearDays - expectedBear);
+    bullAbsErr += errB;
+    bearAbsErr += errD;
+    if (errB <= tolBull) bullHits++;
+    if (errD <= tolBear) bearHits++;
+  }
+  const cycles = consider.length;
+  const totalPreds = cycles * 2;
+  const overallPct = Math.round(((bullHits + bearHits) / totalPreds) * 100);
+  return {
+    cycles,
+    bullDurationHits: bullHits,
+    bearDurationHits: bearHits,
+    bullAvgErrorDays: Math.round(bullAbsErr / cycles),
+    bearAvgErrorDays: Math.round(bearAbsErr / cycles),
+    overallPct,
+  };
 }
 
 

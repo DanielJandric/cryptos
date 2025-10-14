@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { HelpCircle } from "lucide-react";
 import { useUIStore } from "@/lib/store";
+import GlossaryModal from "./GlossaryModal";
 
 const links = [
   { href: "#top", label: "Accueil" },
@@ -34,6 +35,16 @@ export default function Navbar() {
           <HelpCircle className="size-4" />
           <span className="hidden md:inline">Démarrer le tour</span>
         </button>
+        <button
+          onClick={() => useUIStore.getState().toggleNdqRestrict()}
+          className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-slate-700 text-slate-200 hover:bg-slate-800"
+          aria-label="Basculer NDQ période cycle 3"
+        >
+          NDQ période
+        </button>
+        <div className="ml-2 hidden md:inline-block">
+          <GlossaryModal />
+        </div>
         <div className="hidden md:flex items-center gap-4">
           {links.map((l) => (
             <a key={l.href} href={l.href} className={`text-sm transition-colors ${active === l.href.replace('#','') ? 'text-white' : 'text-slate-300 hover:text-white'}`}>

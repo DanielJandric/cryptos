@@ -16,6 +16,7 @@ interface UIState {
   yScale: "log" | "linear";
   showBtc: boolean;
   showNdq: boolean;
+  ndqRestrictToCycle3: boolean;
   setActiveTab: (tab: ActiveTab) => void;
   toggleProjection: () => void;
   setXMode: (m: "date" | "days") => void;
@@ -27,6 +28,7 @@ interface UIState {
   setYScale: (s: "log" | "linear") => void;
   toggleShowBtc: () => void;
   toggleShowNdq: () => void;
+  toggleNdqRestrict: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -40,6 +42,7 @@ export const useUIStore = create<UIState>((set) => ({
   yScale: "log",
   showBtc: true,
   showNdq: false,
+  ndqRestrictToCycle3: true,
   setActiveTab: (activeTab) => set({ activeTab }),
   toggleProjection: () => set((s) => ({ showProjection: !s.showProjection })),
   setXMode: (xMode) => set({ xMode }),
@@ -51,6 +54,7 @@ export const useUIStore = create<UIState>((set) => ({
   setYScale: (yScale) => set({ yScale }),
   toggleShowBtc: () => set((s) => ({ showBtc: !s.showBtc })),
   toggleShowNdq: () => set((s) => ({ showNdq: !s.showNdq })),
+  toggleNdqRestrict: () => set((s) => ({ ndqRestrictToCycle3: !s.ndqRestrictToCycle3 })),
 }));
 
 

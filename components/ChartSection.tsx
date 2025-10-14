@@ -82,6 +82,7 @@ export default function ChartSection() {
   const yScale = useUIStore((s) => s.yScale);
   const showBtc = useUIStore((s) => s.showBtc);
   const showNdq = useUIStore((s) => s.showNdq);
+  const ndqRestrict = useUIStore((s) => s.ndqRestrictToCycle3);
   const series = useMemo(() => generateAllSeries(), []);
   const dataDate = useMemo(() => mergeSeries(series, showProjection), [series, showProjection]);
   const dataDays = useMemo(() => mergeSeriesByDayIndex(series, showProjection), [series, showProjection]);
@@ -116,7 +117,12 @@ export default function ChartSection() {
         map.set(p.t, { timestamp: p.t, c1: null, c2: null, c3: null, projected: false, btc: p.c });
       }
     }
-    for (const p of (ndq?.data ?? [])) {
+    // restrict NASDAQ to cycle 3 date range if option enabled
+    const ndqData = (ndq?.data ?? []).filter((p) => {
+      if (!ndqRestrict) return true;
+      return p.t >= CYCLE_3.bottomDate.getTime() && p.t <= CYCLE_3.nextBottomDate.getTime();
+    });
+    for (const p of ndqData) {
       const existing = map.get(p.t);
       if (existing) {
         existing.ndq = p.c;
@@ -125,7 +131,7 @@ export default function ChartSection() {
       }
     }
     return Array.from(map.values()).sort((a, b) => a.timestamp - b.timestamp);
-  }, [dataDate, dataDays, btc, ndq, xMode]);
+  }, [dataDate, dataDays, btc, ndq, xMode, ndqRestrict]);
   const stats = getSummaryStatsWithBottom(SCENARIO_BOTTOMS[scenario]);
 
   return (

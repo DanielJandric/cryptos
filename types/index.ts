@@ -43,6 +43,15 @@ export interface SummaryStats {
   bearProgressPct: number;
 }
 
+export interface ModelHitRate {
+  cycles: number;
+  bullDurationHits: number;
+  bearDurationHits: number;
+  bullAvgErrorDays: number;
+  bearAvgErrorDays: number;
+  overallPct: number; // 0-100
+}
+
 export interface DurationStats {
   cycleId: CycleId;
   bullDays: number;

@@ -7,6 +7,8 @@ import Countdown from "@/components/Countdown";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import Warning from "@/components/Warning";
 import ScrollSpyController from "@/components/ScrollSpyController";
+import HitRateCard from "@/components/HitRateCard";
+import CorrelationCard from "@/components/CorrelationCard";
 
 export default function Home() {
   return (
@@ -16,6 +18,10 @@ export default function Home() {
       <StatusBanner />
       <div id="theorie"><TheorySection /></div>
       <ModelExplanation />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <HitRateCard />
+        <CorrelationCard />
+      </div>
       <div id="graphique"><CyclesTabsContainer /></div>
       <div id="compte"><Countdown /></div>
       <div id="points"><KeyTakeaways /></div>
