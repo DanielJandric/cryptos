@@ -81,6 +81,16 @@ def main():
     spot = fetch_spot()
     (out_dir / "spot.json").write_text(json.dumps(spot), encoding="utf-8")
 
+    # NASDAQ (^IXIC)
+    df_ndq = yf.download("^IXIC", period="max", interval="1d", auto_adjust=False, progress=False, threads=True).dropna()
+    ndq = {
+        "source": "yfinance",
+        "symbol": "^IXIC",
+        "lastUpdated": datetime.now(timezone.utc).isoformat(),
+        "data": [{"t": epoch_ms(ts.to_pydatetime()), "c": float(r.get("Close", 0.0))} for ts, r in df_ndq.iterrows()],
+    }
+    (out_dir / "nasdaq-history.json").write_text(json.dumps(ndq), encoding="utf-8")
+
     print("Wrote:", out_dir / "btc-history.json")
     print("Wrote:", out_dir / "spot.json")
 

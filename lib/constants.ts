@@ -14,6 +14,7 @@ export const SERIES_COLORS = {
   c1: "#60a5fa", // blue-400
   c2: "#a78bfa", // violet-400
   c3: "#f472b6", // pink-400
+  ndq: "#22d3ee", // cyan-400 for NASDAQ overlay
 };
 
 // Dates de halving pertinents pour les cycles 2015+

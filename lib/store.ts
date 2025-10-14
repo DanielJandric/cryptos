@@ -15,6 +15,7 @@ interface UIState {
   activeSectionId: string | null;
   yScale: "log" | "linear";
   showBtc: boolean;
+  showNdq: boolean;
   setActiveTab: (tab: ActiveTab) => void;
   toggleProjection: () => void;
   setXMode: (m: "date" | "days") => void;
@@ -25,6 +26,7 @@ interface UIState {
   setActiveSection: (id: string | null) => void;
   setYScale: (s: "log" | "linear") => void;
   toggleShowBtc: () => void;
+  toggleShowNdq: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -37,6 +39,7 @@ export const useUIStore = create<UIState>((set) => ({
   activeSectionId: null,
   yScale: "log",
   showBtc: true,
+  showNdq: false,
   setActiveTab: (activeTab) => set({ activeTab }),
   toggleProjection: () => set((s) => ({ showProjection: !s.showProjection })),
   setXMode: (xMode) => set({ xMode }),
@@ -47,6 +50,7 @@ export const useUIStore = create<UIState>((set) => ({
   setActiveSection: (activeSectionId) => set({ activeSectionId }),
   setYScale: (yScale) => set({ yScale }),
   toggleShowBtc: () => set((s) => ({ showBtc: !s.showBtc })),
+  toggleShowNdq: () => set((s) => ({ showNdq: !s.showNdq })),
 }));
 
 

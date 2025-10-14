@@ -74,4 +74,15 @@ export interface BtcSpot {
   ts: number; // epoch ms
 }
 
+export interface IndexHistoryPoint {
+  t: number;
+  c: number;
+}
+export interface IndexHistory {
+  source: string;
+  symbol: string;
+  lastUpdated: string;
+  data: IndexHistoryPoint[];
+}
+
 

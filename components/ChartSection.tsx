@@ -23,7 +23,7 @@ import {
 import RadialProgress from "./RadialProgress";
 import { useUIStore } from "@/lib/store";
 import { HALVINGS, SERIES_COLORS, SCENARIO_BOTTOMS } from "@/lib/constants";
-import type { BtcHistory } from "@/types";
+import type { BtcHistory, IndexHistory } from "@/types";
 import { CYCLE_3 } from "@/lib/data/cycles";
 import ChartAnnotations from "./ChartAnnotations";
 import ExportPNGButton from "./ExportPNGButton";
@@ -81,15 +81,21 @@ export default function ChartSection() {
   const dayOffset = useUIStore((s) => s.dayOffset);
   const yScale = useUIStore((s) => s.yScale);
   const showBtc = useUIStore((s) => s.showBtc);
+  const showNdq = useUIStore((s) => s.showNdq);
   const series = useMemo(() => generateAllSeries(), []);
   const dataDate = useMemo(() => mergeSeries(series, showProjection), [series, showProjection]);
   const dataDays = useMemo(() => mergeSeriesByDayIndex(series, showProjection), [series, showProjection]);
   const [btc, setBtc] = useState<BtcHistory | null>(null);
+  const [ndq, setNdq] = useState<IndexHistory | null>(null);
   useEffect(() => {
     const load = async () => {
       try {
         const res = await fetch("/data/btc-history.json", { cache: "no-store" });
         if (res.ok) setBtc(await res.json());
+      } catch {}
+      try {
+        const res2 = await fetch("/data/nasdaq-history.json", { cache: "no-store" });
+        if (res2.ok) setNdq(await res2.json());
       } catch {}
     };
     load();
@@ -99,8 +105,8 @@ export default function ChartSection() {
     if (xMode === "days") {
       return dataDays as unknown as ChartRecord[];
     }
-    // date mode merges real BTC history
-    const map = new Map<number, { timestamp: number; c1: number | null; c2: number | null; c3: number | null; projected: boolean; btc?: number }>();
+    // date mode merges real BTC and optional NASDAQ history
+    const map = new Map<number, { timestamp: number; c1: number | null; c2: number | null; c3: number | null; projected: boolean; btc?: number; ndq?: number }>();
     for (const row of dataDate) map.set(row.timestamp, { ...row });
     for (const p of (btc?.data ?? [])) {
       const existing = map.get(p.t);
@@ -110,8 +116,16 @@ export default function ChartSection() {
         map.set(p.t, { timestamp: p.t, c1: null, c2: null, c3: null, projected: false, btc: p.c });
       }
     }
+    for (const p of (ndq?.data ?? [])) {
+      const existing = map.get(p.t);
+      if (existing) {
+        existing.ndq = p.c;
+      } else {
+        map.set(p.t, { timestamp: p.t, c1: null, c2: null, c3: null, projected: false, ndq: p.c });
+      }
+    }
     return Array.from(map.values()).sort((a, b) => a.timestamp - b.timestamp);
-  }, [dataDate, dataDays, btc, xMode]);
+  }, [dataDate, dataDays, btc, ndq, xMode]);
   const stats = getSummaryStatsWithBottom(SCENARIO_BOTTOMS[scenario]);
 
   return (
@@ -211,6 +225,17 @@ export default function ChartSection() {
                 connectNulls
               />
             )}
+            {showNdq && ndq && xMode === "date" && (
+              <Line
+                type="monotone"
+                name="NASDAQ"
+                dataKey="ndq"
+                stroke={SERIES_COLORS.ndq}
+                dot={false}
+                strokeWidth={1.25}
+                connectNulls
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -251,6 +276,13 @@ export default function ChartSection() {
           aria-label="Afficher/masquer BTC réel"
         >
           {showBtc ? "BTC: on" : "BTC: off"}
+        </button>
+        <button
+          className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800"
+          onClick={() => useUIStore.getState().toggleShowNdq()}
+          aria-label="Afficher/masquer NASDAQ"
+        >
+          {showNdq ? "NDQ: on" : "NDQ: off"}
         </button>
       </div>
       <ChartAnnotations />
