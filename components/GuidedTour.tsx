@@ -33,7 +33,7 @@ const steps = [
 
 export default function GuidedTour() {
   const show = useUIStore((s) => s.showTour);
-  const toggle = useUIStore((s) => s.toggleTour);
+  // const toggle = useUIStore((s) => s.toggleTour);
   const setTour = useUIStore((s) => s.setTour);
   const [idx, setIdx] = useState(0);
 

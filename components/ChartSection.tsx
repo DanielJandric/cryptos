@@ -10,12 +10,19 @@ import {
   ReferenceLine,
   Legend,
   Line,
+  ReferenceArea,
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
-import { generateAllSeries, mergeSeries, getSummaryStatsWithBottom } from "@/lib/chartData";
+import {
+  generateAllSeries,
+  mergeSeries,
+  mergeSeriesByDayIndex,
+  getSummaryStatsWithBottom,
+  getMaxCycleDays,
+} from "@/lib/chartData";
 import RadialProgress from "./RadialProgress";
 import { useUIStore } from "@/lib/store";
-import { SERIES_COLORS, SCENARIO_BOTTOMS } from "@/lib/constants";
+import { HALVINGS, SERIES_COLORS, SCENARIO_BOTTOMS } from "@/lib/constants";
 import type { BtcHistory } from "@/types";
 import { CYCLE_3 } from "@/lib/data/cycles";
 import ChartAnnotations from "./ChartAnnotations";
@@ -32,6 +39,16 @@ type TooltipPayloadItem = {
   value: number;
   color?: string;
   payload?: Record<string, unknown>;
+};
+
+type ChartRecord = {
+  timestamp?: number;
+  day?: number;
+  c1: number | null;
+  c2: number | null;
+  c3: number | null;
+  projected: boolean;
+  btc?: number;
 };
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: number | string }) {
@@ -59,8 +76,11 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 export default function ChartSection() {
   const showProjection = useUIStore((s) => s.showProjection);
   const scenario = useUIStore((s) => s.scenario);
+  const xMode = useUIStore((s) => s.xMode);
+  const dayOffset = useUIStore((s) => s.dayOffset);
   const series = useMemo(() => generateAllSeries(), []);
-  const data = useMemo(() => mergeSeries(series, showProjection), [series, showProjection]);
+  const dataDate = useMemo(() => mergeSeries(series, showProjection), [series, showProjection]);
+  const dataDays = useMemo(() => mergeSeriesByDayIndex(series, showProjection), [series, showProjection]);
   const [btc, setBtc] = useState<BtcHistory | null>(null);
   useEffect(() => {
     const load = async () => {
@@ -72,11 +92,14 @@ export default function ChartSection() {
     load();
   }, []);
 
-  const chartData = useMemo((): Array<{ timestamp: number; c1: number | null; c2: number | null; c3: number | null; projected: boolean; btc?: number }> => {
-    if (!btc) return data;
+  const chartData = useMemo<ChartRecord[]>(() => {
+    if (xMode === "days") {
+      return dataDays as unknown as ChartRecord[];
+    }
+    // date mode merges real BTC history
     const map = new Map<number, { timestamp: number; c1: number | null; c2: number | null; c3: number | null; projected: boolean; btc?: number }>();
-    for (const row of data) map.set(row.timestamp, { ...row });
-    for (const p of btc.data) {
+    for (const row of dataDate) map.set(row.timestamp, { ...row });
+    for (const p of (btc?.data ?? [])) {
       const existing = map.get(p.t);
       if (existing) {
         existing.btc = p.c;
@@ -85,7 +108,7 @@ export default function ChartSection() {
       }
     }
     return Array.from(map.values()).sort((a, b) => a.timestamp - b.timestamp);
-  }, [data, btc]);
+  }, [dataDate, dataDays, btc, xMode]);
   const stats = getSummaryStatsWithBottom(SCENARIO_BOTTOMS[scenario]);
 
   return (
@@ -100,6 +123,16 @@ export default function ChartSection() {
             onChange={() => useUIStore.getState().toggleProjection()}
             aria-label="Afficher/masquer la projection du cycle 3"
           />
+          <label className="text-sm text-slate-300/90 hidden md:inline">Axe</label>
+          <select
+            className="hidden md:inline bg-slate-900/60 border border-slate-700 rounded px-2 py-1 text-sm"
+            value={xMode}
+            onChange={(e) => useUIStore.getState().setXMode(e.target.value as "date" | "days")}
+            aria-label="Mode de l'axe X"
+          >
+            <option value="date">Date</option>
+            <option value="days">Jours depuis creux</option>
+          </select>
           <ExportPNGButton targetId="main-chart" />
         </div>
       </div>
@@ -121,20 +154,49 @@ export default function ChartSection() {
                 <stop offset="95%" stopColor={SERIES_COLORS.c3} stopOpacity={0.05} />
               </linearGradient>
             </defs>
-            <XAxis dataKey="timestamp" tickFormatter={formatDate} interval="preserveStartEnd" stroke="#64748b" />
+            {xMode === "days" ? (
+              <XAxis dataKey="day" tickFormatter={(v) => `${v}j`} interval="preserveStartEnd" stroke="#64748b" />
+            ) : (
+              <XAxis dataKey="timestamp" tickFormatter={formatDate} interval="preserveStartEnd" stroke="#64748b" />
+            )}
             <YAxis scale="log" domain={["auto", "auto"]} tickFormatter={(v) => `$${Math.round(v)}`} stroke="#64748b" />
             <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#94a3b8", strokeDasharray: 4 }} />
             <Legend wrapperStyle={{ color: "#cbd5e1" }} />
 
             {/* Lignes de référence (exemple: sommet cycle 3 et creux projeté) */}
-            <ReferenceLine x={new Date().getTime()} stroke="#94a3b8" strokeDasharray={6} label={{ value: "Aujourd\'hui", fill: "#94a3b8" }} />
+            {xMode === "date" && (
+              <ReferenceLine x={new Date().getTime()} stroke="#94a3b8" strokeDasharray={6} label={{ value: "Aujourd\'hui", fill: "#94a3b8" }} />
+            )}
             <ReferenceLine y={CYCLE_3.topPriceUsd} stroke="#60a5fa" strokeDasharray={6} label={{ value: "ATH C3", fill: "#60a5fa" }} />
             <ReferenceLine y={CYCLE_3.nextBottomPriceUsd} stroke="#f59e0b" strokeDasharray={6} label={{ value: "Creux proj.", fill: "#f59e0b" }} />
+
+            {/* Shading bull/bear pour cycle 3 */}
+            {xMode === "date" ? (
+              <>
+                <ReferenceArea x1={CYCLE_3.bottomDate.getTime()} x2={CYCLE_3.topDate.getTime()} y1={0} y2={Infinity} fill="#16a34a" fillOpacity={0.06} />
+                <ReferenceArea x1={CYCLE_3.topDate.getTime()} x2={CYCLE_3.nextBottomDate.getTime()} y1={0} y2={Infinity} fill="#ef4444" fillOpacity={0.06} />
+                {HALVINGS.map((d) => (
+                  <ReferenceLine key={d.toISOString()} x={d.getTime()} stroke="#22c55e" strokeDasharray={4} label={{ value: "Halving", fill: "#22c55e" }} />
+                ))}
+              </>
+            ) : (
+              <>
+                <ReferenceArea x1={0} x2={CYCLE_3.bullDays} y1={0} y2={Infinity} fill="#16a34a" fillOpacity={0.06} />
+                <ReferenceArea x1={CYCLE_3.bullDays} x2={CYCLE_3.bullDays + CYCLE_3.bearDays} y1={0} y2={Infinity} fill="#ef4444" fillOpacity={0.06} />
+              </>
+            )}
+
+            {/* Scrubber (ligne verticale) */}
+            {xMode === "days" ? (
+              <ReferenceLine x={dayOffset} stroke="#94a3b8" strokeDasharray={6} />
+            ) : (
+              <ReferenceLine x={CYCLE_3.bottomDate.getTime() + dayOffset * 86400000} stroke="#94a3b8" strokeDasharray={6} />
+            )}
 
             <Area type="monotone" name="Cycle 1" dataKey="c1" stroke={SERIES_COLORS.c1} fillOpacity={1} fill="url(#gradC1)" connectNulls />
             <Area type="monotone" name="Cycle 2" dataKey="c2" stroke={SERIES_COLORS.c2} fillOpacity={1} fill="url(#gradC2)" connectNulls />
             <Area type="monotone" name="Cycle 3" dataKey="c3" stroke={SERIES_COLORS.c3} fillOpacity={1} fill="url(#gradC3)" connectNulls />
-            {btc && (
+            {btc && xMode === "date" && (
               <Line
                 type="monotone"
                 name="BTC réel"
@@ -147,6 +209,29 @@ export default function ChartSection() {
             )}
           </AreaChart>
         </ResponsiveContainer>
+      </div>
+      {/* Mobile action bar under chart */}
+      <div className="md:hidden mt-2 flex items-center gap-2">
+        <label className="text-xs text-slate-400">Axe</label>
+        <select
+          className="bg-slate-900/60 border border-slate-700 rounded px-2 py-1 text-sm"
+          value={xMode}
+          onChange={(e) => useUIStore.getState().setXMode(e.target.value as "date" | "days")}
+          aria-label="Mode de l'axe X (mobile)"
+        >
+          <option value="date">Date</option>
+          <option value="days">Jours</option>
+        </select>
+        <label className="text-xs text-slate-400">Scrub</label>
+        <input
+          type="range"
+          min={0}
+          max={getMaxCycleDays()}
+          value={dayOffset}
+          onChange={(e) => useUIStore.getState().setDayOffset(parseInt(e.target.value, 10))}
+          className="flex-1"
+          aria-label="Scrubber (jours)"
+        />
       </div>
       <ChartAnnotations />
 
