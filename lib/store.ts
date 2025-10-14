@@ -19,6 +19,7 @@ interface UIState {
   setDayOffset: (n: number) => void;
   setScenario: (s: Scenario) => void;
   toggleTour: () => void;
+  setTour: (value: boolean) => void;
   setActiveSection: (id: string | null) => void;
 }
 
@@ -36,6 +37,7 @@ export const useUIStore = create<UIState>((set) => ({
   setDayOffset: (dayOffset) => set({ dayOffset }),
   setScenario: (scenario) => set({ scenario }),
   toggleTour: () => set((s) => ({ showTour: !s.showTour })),
+  setTour: (value) => set({ showTour: value }),
   setActiveSection: (activeSectionId) => set({ activeSectionId }),
 }));
 

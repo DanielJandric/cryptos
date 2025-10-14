@@ -13,17 +13,27 @@ const steps = [
 export default function GuidedTour() {
   const show = useUIStore((s) => s.showTour);
   const toggle = useUIStore((s) => s.toggleTour);
+  const setTour = useUIStore((s) => s.setTour);
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
     if (!show) setIdx(0);
   }, [show]);
 
+  // Scroll to the current step target when tour is visible
+  useEffect(() => {
+    if (!show) return;
+    const targetId = steps[idx]?.target;
+    if (!targetId) return;
+    const element = document.getElementById(targetId);
+    if (element) element.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [show, idx]);
+
   if (!show) return null;
   const step = steps[idx];
   const el = typeof document !== "undefined" ? document.getElementById(step.target) : null;
   const rect = el?.getBoundingClientRect();
-  const top = (rect?.top ?? 120) + window.scrollY - 16;
+  const top = (rect?.top ?? 120) + (typeof window !== "undefined" ? window.scrollY : 0) + 16;
   const left = (rect?.left ?? 16) + 16;
 
   return (
@@ -33,7 +43,7 @@ export default function GuidedTour() {
         <div className="pointer-events-auto card p-4 border-blue-500/40 bg-slate-900/90 max-w-[280px]">
           <div className="flex items-center justify-between mb-2">
             <h4 className="font-semibold">{step.title}</h4>
-            <button onClick={toggle} aria-label="Fermer" className="p-1 rounded hover:bg-slate-800/60">
+            <button onClick={() => setTour(false)} aria-label="Fermer" className="p-1 rounded hover:bg-slate-800/60">
               <X className="size-4" />
             </button>
           </div>

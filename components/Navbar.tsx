@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { HelpCircle } from "lucide-react";
 import { useUIStore } from "@/lib/store";
 
 const links = [
@@ -27,9 +28,11 @@ export default function Navbar() {
         <div className="flex-1" />
         <button
           onClick={() => useUIStore.getState().toggleTour()}
-          className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-blue-500/40 text-blue-200 hover:bg-blue-500/10 mr-3"
+          className="inline-flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-md border border-blue-500/40 text-blue-200 hover:bg-blue-500/10 mr-1 md:mr-3"
+          aria-label="Démarrer le tour"
         >
-          Démarrer le tour
+          <HelpCircle className="size-4" />
+          <span className="hidden md:inline">Démarrer le tour</span>
         </button>
         <div className="hidden md:flex items-center gap-4">
           {links.map((l) => (
