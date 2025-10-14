@@ -69,7 +69,7 @@ export default function GuidedTour() {
     <div className="fixed inset-0 z-[60] pointer-events-none">
       <div className="absolute inset-0 bg-black/50" />
       <div className="absolute" style={{ top, left }}>
-        <div className="pointer-events-auto card p-4 border-blue-500/40 bg-slate-900/90 max-w-[280px]">
+        <div className="pointer-events-auto card p-4 border-blue-500/40 bg-slate-900/90 max-w-[280px] max-h-[60vh] overflow-auto">
           <div className="flex items-center justify-between mb-2">
             <h4 className="font-semibold">{step.title}</h4>
             <button onClick={() => setTour(false)} aria-label="Fermer" className="p-1 rounded hover:bg-slate-800/60">
@@ -77,30 +77,33 @@ export default function GuidedTour() {
             </button>
           </div>
           <p className="text-sm text-slate-300/90">{step.text}</p>
-          <div className="mt-3 flex items-center justify-between">
+        </div>
+      </div>
+      {/* Fixed bottom controls for mobile accessibility */}
+      <div className="pointer-events-auto fixed inset-x-0 bottom-0 p-3">
+        <div className="mx-auto max-w-6xl flex items-center justify-between gap-2">
+          <button
+            className="px-3 py-2 rounded-md border border-slate-700 bg-slate-900/80 text-slate-200 hover:bg-slate-800/80"
+            onClick={() => setIdx((v) => Math.max(0, v - 1))}
+            disabled={idx === 0}
+          >
+            Précédent
+          </button>
+          {idx < steps.length - 1 ? (
             <button
-              className="px-3 py-1.5 rounded border border-slate-700 text-slate-200 hover:bg-slate-800/60"
-              onClick={() => setIdx((v) => Math.max(0, v - 1))}
-              disabled={idx === 0}
+              className="px-3 py-2 rounded-md border border-blue-600 bg-blue-600 text-white hover:bg-blue-500"
+              onClick={() => setIdx((v) => Math.min(steps.length - 1, v + 1))}
             >
-              Précédent
+              Suivant
             </button>
-            {idx < steps.length - 1 ? (
-              <button
-                className="px-3 py-1.5 rounded border border-blue-600 bg-blue-600 text-white hover:bg-blue-500"
-                onClick={() => setIdx((v) => Math.min(steps.length - 1, v + 1))}
-              >
-                Suivant
-              </button>
-            ) : (
-              <button
-                className="px-3 py-1.5 rounded border border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-500"
-                onClick={toggle}
-              >
-                Terminer
-              </button>
-            )}
-          </div>
+          ) : (
+            <button
+              className="px-3 py-2 rounded-md border border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-500"
+              onClick={() => setTour(false)}
+            >
+              Terminer
+            </button>
+          )}
         </div>
       </div>
     </div>
