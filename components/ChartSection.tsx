@@ -18,6 +18,8 @@ import { useUIStore } from "@/lib/store";
 import { SERIES_COLORS, SCENARIO_BOTTOMS } from "@/lib/constants";
 import type { BtcHistory } from "@/types";
 import { CYCLE_3 } from "@/lib/data/cycles";
+import ChartAnnotations from "./ChartAnnotations";
+import ExportPNGButton from "./ExportPNGButton";
 
 function formatDate(t: number) {
   const d = new Date(t);
@@ -98,10 +100,11 @@ export default function ChartSection() {
             onChange={() => useUIStore.getState().toggleProjection()}
             aria-label="Afficher/masquer la projection du cycle 3"
           />
+          <ExportPNGButton targetId="main-chart" />
         </div>
       </div>
 
-      <div className="w-full h-[260px] sm:h-[300px] md:h-[360px]">
+      <div id="main-chart" className="w-full h-[260px] sm:h-[300px] md:h-[360px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
             <defs>
@@ -145,6 +148,7 @@ export default function ChartSection() {
           </AreaChart>
         </ResponsiveContainer>
       </div>
+      <ChartAnnotations />
 
       {/* Stats résumées sous le graphique */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
@@ -160,14 +164,16 @@ export default function ChartSection() {
           <p className="text-xs text-slate-400">Jours jusqu&apos;au creux projeté</p>
           <p className="text-xl font-semibold">{stats.daysToProjectedBottom}</p>
         </div>
-        <div className="card p-3 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-slate-400">Prix actuel estimé</p>
-            <p className="text-xl font-semibold">${Math.round(stats.currentPriceEstimate).toLocaleString("en-US")}</p>
-          </div>
+        <div className="card p-3 flex items-center gap-3">
           {stats.currentPhase === "bear" && (
-            <RadialProgress value={stats.bearProgressPct} label={`Bear ${stats.daysSinceTop}/${stats.bearTotalDays}j`} />
+            <div className="shrink-0">
+              <RadialProgress value={stats.bearProgressPct} label={`Bear ${stats.daysSinceTop}/${stats.bearTotalDays}j`} size={72} />
+            </div>
           )}
+          <div className="min-w-0">
+            <p className="text-xs text-slate-400">Prix actuel estimé</p>
+            <p className="text-xl font-semibold truncate">${Math.round(stats.currentPriceEstimate).toLocaleString("en-US")}</p>
+          </div>
         </div>
       </div>
     </section>
