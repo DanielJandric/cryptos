@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { TrendingDown } from "lucide-react";
 import { getSummaryStats, formatMoney } from "@/lib/chartData";
 import type { BtcSpot } from "@/types";
+import { SCENARIO_BOTTOMS } from "@/lib/constants";
+import { useUIStore } from "@/lib/store";
 
 export function StatusBanner() {
+  const scenario = useUIStore((s) => s.scenario);
   const stats = getSummaryStats();
   const [spot, setSpot] = useState<BtcSpot | null>(null);
 
@@ -40,6 +43,19 @@ export function StatusBanner() {
         <p className="text-2xl font-bold">
           {spot ? `$${Math.round(spot.price).toLocaleString("en-US")}` : formatMoney(stats.currentPriceEstimate)}
         </p>
+        <div className="mt-2 text-xs text-white/80 flex items-center gap-2 justify-end">
+          <span>Scénario:</span>
+          <select
+            className="bg-white/10 border border-white/20 rounded px-2 py-1"
+            value={scenario}
+            onChange={(e) => useUIStore.getState().setScenario(e.target.value as "soft" | "base" | "severe")}
+            aria-label="Sélection du scénario"
+          >
+            <option value="soft">Doux (~${SCENARIO_BOTTOMS.soft.toLocaleString("en-US")})</option>
+            <option value="base">Base (~${SCENARIO_BOTTOMS.base.toLocaleString("en-US")})</option>
+            <option value="severe">Sévère (~${SCENARIO_BOTTOMS.severe.toLocaleString("en-US")})</option>
+          </select>
+        </div>
       </div>
     </div>
   );

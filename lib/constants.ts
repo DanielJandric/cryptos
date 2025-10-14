@@ -24,4 +24,11 @@ export const HALVINGS = [
   makeUtcDate(2024, 4, 20),
 ];
 
+// Scénarios "what-if" (prix de creux projeté pour le cycle 3)
+export const SCENARIO_BOTTOMS = {
+  soft: 45000, // ~-64% du top
+  base: 35000, // ~-72% (par défaut)
+  severe: 20000, // ~-84%
+};
+
 

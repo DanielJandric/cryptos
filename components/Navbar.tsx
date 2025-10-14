@@ -30,6 +30,13 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 backdrop-blur border-b border-slate-800/60 bg-slate-950/60">
       <nav className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <a href="#top" className="font-bold text-slate-100">Cycles 1064/364</a>
+        <div className="flex-1" />
+        <button
+          onClick={() => useUIStore.getState().toggleTour()}
+          className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-blue-500/40 text-blue-200 hover:bg-blue-500/10 mr-3"
+        >
+          Démarrer le tour
+        </button>
         <div className="hidden md:flex items-center gap-4">
           {links.map((l) => (
             <a key={l.href} href={l.href} className={`text-sm transition-colors ${active === l.href.replace('#','') ? 'text-white' : 'text-slate-300 hover:text-white'}`}>

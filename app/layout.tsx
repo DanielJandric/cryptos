@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import BackToTop from "@/components/BackToTop";
+import GuidedTour from "@/components/GuidedTour";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,6 +77,7 @@ export default function RootLayout({
         <Navbar />
         {children}
         <BottomNav />
+        <GuidedTour />
         <BackToTop />
       </body>
     </html>
