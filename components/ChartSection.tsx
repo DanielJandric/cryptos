@@ -11,7 +11,6 @@ import {
   Legend,
   Line,
   ReferenceArea,
-  Brush,
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -19,7 +18,6 @@ import {
   mergeSeries,
   mergeSeriesByDayIndex,
   getSummaryStatsWithBottom,
-  getMaxCycleDays,
 } from "@/lib/chartData";
 import RadialProgress from "./RadialProgress";
 import { useUIStore } from "@/lib/store";
@@ -102,12 +100,10 @@ export default function ChartSection() {
   const showProjection = useUIStore((s) => s.showProjection);
   const scenario = useUIStore((s) => s.scenario);
   const xMode = useUIStore((s) => s.xMode);
-  const dayOffset = useUIStore((s) => s.dayOffset);
   const yScale = useUIStore((s) => s.yScale);
   const showBtc = useUIStore((s) => s.showBtc);
   const showNdq = useUIStore((s) => s.showNdq);
   const ndqRestrict = useUIStore((s) => s.ndqRestrictToCycle3);
-  const [brushKey, setBrushKey] = useState(0);
   const series = useMemo(() => generateAllSeries(), []);
   const dataDate = useMemo(() => mergeSeries(series, showProjection), [series, showProjection]);
   const dataDays = useMemo(() => mergeSeriesByDayIndex(series, showProjection), [series, showProjection]);
@@ -182,13 +178,6 @@ export default function ChartSection() {
             <option value="date">Date</option>
             <option value="days">Jours depuis creux</option>
           </select>
-          <button
-            className="hidden md:inline px-2 py-1.5 rounded-md border border-slate-700 text-slate-200 hover:bg-slate-800"
-            onClick={() => setBrushKey((k) => k + 1)}
-            aria-label="Réinitialiser le zoom"
-          >
-            Reset
-          </button>
           <ExportPNGButton targetId="main-chart" />
         </div>
       </div>
@@ -242,13 +231,6 @@ export default function ChartSection() {
               </>
             )}
 
-            {/* Scrubber (ligne verticale) */}
-            {xMode === "days" ? (
-              <ReferenceLine x={dayOffset} stroke="#94a3b8" strokeDasharray={6} />
-            ) : (
-              <ReferenceLine x={CYCLE_3.bottomDate.getTime() + dayOffset * 86400000} stroke="#94a3b8" strokeDasharray={6} />
-            )}
-
             <Area type="monotone" name="Cycle 1" dataKey="c1" stroke={SERIES_COLORS.c1} fillOpacity={1} fill="url(#gradC1)" connectNulls />
             <Area type="monotone" name="Cycle 2" dataKey="c2" stroke={SERIES_COLORS.c2} fillOpacity={1} fill="url(#gradC2)" connectNulls />
             <Area type="monotone" name="Cycle 3" dataKey="c3" stroke={SERIES_COLORS.c3} fillOpacity={1} fill="url(#gradC3)" connectNulls />
@@ -296,26 +278,7 @@ export default function ChartSection() {
             <option value="days">Jours</option>
           </select>
         </div>
-        <div className="flex items-center gap-2 basis-full">
-          <label className="text-xs text-slate-400">Scrub</label>
-          <input
-            type="range"
-            min={0}
-            max={getMaxCycleDays()}
-            value={dayOffset}
-            onChange={(e) => useUIStore.getState().setDayOffset(parseInt(e.target.value, 10))}
-            className="w-full"
-            aria-label="Scrubber (jours)"
-          />
-        </div>
         <div className="flex items-center gap-2">
-          <button
-            className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800 text-xs"
-            onClick={() => setBrushKey((k) => k + 1)}
-            aria-label="Réinitialiser le zoom (mobile)"
-          >
-            Reset
-          </button>
           <button
             className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800 text-xs"
             onClick={() => {
