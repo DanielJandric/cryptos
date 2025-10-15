@@ -82,7 +82,16 @@ def main():
     (out_dir / "spot.json").write_text(json.dumps(spot), encoding="utf-8")
 
     # NASDAQ (^IXIC)
-    df_ndq = yf.download("^IXIC", period="max", interval="1d", auto_adjust=False, progress=False, threads=True).dropna()
+    # Fetch NASDAQ since 2014-01-01
+    df_ndq = yf.download(
+        "^IXIC",
+        start="2014-01-01",
+        end=None,
+        interval="1d",
+        auto_adjust=False,
+        progress=False,
+        threads=True,
+    ).dropna()
     ndq = {
         "source": "yfinance",
         "symbol": "^IXIC",

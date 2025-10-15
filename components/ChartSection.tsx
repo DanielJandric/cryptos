@@ -139,9 +139,12 @@ export default function ChartSection() {
       }
     }
     // restrict NASDAQ to cycle 3 date range if option enabled
+    const NDQ_MIN_2014 = Date.UTC(2014, 0, 1);
     const ndqData = (ndq?.data ?? []).filter((p) => {
-      if (!ndqRestrict) return true;
-      return p.t >= CYCLE_3.bottomDate.getTime() && p.t <= CYCLE_3.nextBottomDate.getTime();
+      if (ndqRestrict) {
+        return p.t >= CYCLE_3.bottomDate.getTime() && p.t <= CYCLE_3.nextBottomDate.getTime();
+      }
+      return p.t >= NDQ_MIN_2014; // show since 2014
     });
     for (const p of ndqData) {
       const existing = map.get(p.t);
@@ -179,6 +182,13 @@ export default function ChartSection() {
             <option value="days">Jours depuis creux</option>
           </select>
           <ExportPNGButton targetId="main-chart" />
+          <button
+            className="hidden md:inline px-2 py-1.5 rounded-md border border-slate-700 text-slate-200 hover:bg-slate-800"
+            onClick={() => useUIStore.getState().toggleNdqRestrict()}
+            aria-label="Basculer période NASDAQ (C3 / 2014+)"
+          >
+            {ndqRestrict ? "NDQ: C3" : "NDQ: 2014+"}
+          </button>
         </div>
       </div>
 
@@ -261,7 +271,7 @@ export default function ChartSection() {
       </div>
       {showNdq && (
         <div className="mt-1 text-xs text-slate-400">
-          NDQ période: {ndqRestrict ? `${CYCLE_3.bottomDate.toISOString().slice(0,10)} → ${CYCLE_3.nextBottomDate.toISOString().slice(0,10)}` : 'complet'}
+          NDQ période: {ndqRestrict ? `${CYCLE_3.bottomDate.toISOString().slice(0,10)} → ${CYCLE_3.nextBottomDate.toISOString().slice(0,10)}` : '2014+'}
         </div>
       )}
       {/* Mobile action bar under chart (wrap on multiple lines for iPhone) */}
@@ -301,6 +311,13 @@ export default function ChartSection() {
             aria-label="Afficher/masquer NASDAQ"
           >
             {showNdq ? "NDQ: on" : "NDQ: off"}
+          </button>
+          <button
+            className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800 text-xs"
+            onClick={() => useUIStore.getState().toggleNdqRestrict()}
+            aria-label="Basculer période NDQ (C3/2014+)"
+          >
+            {ndqRestrict ? "C3" : "2014+"}
           </button>
         </div>
       </div>
