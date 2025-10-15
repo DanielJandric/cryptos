@@ -247,7 +247,7 @@ export default function ChartSection() {
             {showBtc && btc && xMode === "date" && (
               <Line
                 type="monotone"
-                name="BTC réel"
+                name="BTC"
                 dataKey="btc"
                 stroke="#fde68a"
                 dot={false}
@@ -301,7 +301,7 @@ export default function ChartSection() {
           <button
             className="px-2 py-1 rounded border border-slate-700 text-slate-200 hover:bg-slate-800 text-xs"
             onClick={() => useUIStore.getState().toggleShowBtc()}
-            aria-label="Afficher/masquer BTC réel"
+            aria-label="Afficher/masquer BTC"
           >
             {showBtc ? "BTC: on" : "BTC: off"}
           </button>
@@ -344,7 +344,7 @@ export default function ChartSection() {
             </div>
           )}
           <div className="min-w-0">
-            <p className="text-xs text-slate-400">Prix actuel estimé</p>
+            <p className="text-xs text-slate-400">Prix actuel</p>
             <p className="text-xl font-semibold truncate">${Math.round(stats.currentPriceEstimate).toLocaleString("en-US")}</p>
           </div>
         </div>
