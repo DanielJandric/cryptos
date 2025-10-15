@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import BottomNav from "@/components/BottomNav";
 import BackToTop from "@/components/BackToTop";
 import GuidedTour from "@/components/GuidedTour";
 import LanguageInit from "@/components/LanguageInit";
@@ -78,7 +77,6 @@ export default function RootLayout({
         <LanguageInit />
         <Navbar />
         {children}
-        <BottomNav />
         <GuidedTour />
         <BackToTop />
       </body>
