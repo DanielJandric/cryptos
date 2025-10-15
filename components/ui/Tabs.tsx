@@ -14,7 +14,6 @@ export default function Tabs() {
     { key: "graph", label: msg("Graphique", "Chart") },
     { key: "cycles", label: msg("Cycles", "Cycles") },
     { key: "comparison", label: msg("Comparaison", "Comparison") },
-    { key: "hitrate", label: msg("Hit rate", "Hit rate") },
   ];
 
   return (
